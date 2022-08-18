@@ -1,0 +1,181 @@
+﻿@page "/register"
+@using System.Web;
+@using System.Net;
+@using System.ComponentModel.DataAnnotations;
+@using Newtonsoft.Json
+@using eShopShare.Models.ApiModels
+@layout WebLayout;
+@inject NavigationManager NavigationManager
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject Microsoft.Extensions.Configuration.IConfiguration config;
+@inject IJSRuntime JSRuntime
+@inject IOnChangeService _OCSvc
+@inject IToastService _toastSvc;
+@*<section class="account">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="account-contents" style="background: url('assets/img/about/about1.jpg'); background-size: cover;">
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                <div class="account-thumb">
+                                    <h2>Register now</h2>
+                                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consectetur similique deleniti pariatur enim cumque eum</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                <div class="account-content">
+                                    <div class="form">
+                                        <div class="single-acc-field">
+                                            <label for="name">Name</label>
+                                            <input type="text" id="name" @bind="@name" placeholder="Enter Your Name">
+                                        </div>
+                                        <div class="single-acc-field">
+                                            <label for="email">Email</label>
+                                            <input type="email" id="email" @bind="@email" placeholder="Enter your Email">
+                                        </div>
+                                        <div class="single-acc-field">
+                                            <label for="password">Password</label>
+                                            <input type="password" id="password" @bind="@password" placeholder="At least 6 Charecter">
+                                        </div>
+                                        <div class="single-acc-field boxes">
+                                                <input type="checkbox" id="checkbox">
+                                                <label for="checkbox">I'm not a robot</label>
+                                            </div>
+                                        <div class="single-acc-field">
+                                            <button @onclick="DangKy">Register now</button>
+                                        </div>
+                                        <a href="/login">Already account? Login</a>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(error))
+                                    {
+                                        <div class="alert alert-danger mt-3 mb-0">@((MarkupString)error)</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>*@
+
+<div id="page-content" class="page-content">
+    <div class="banner">
+        <div class="jumbotron jumbotron-bg text-center rounded-0 bg-white text-dark ">
+            <div class="container">
+                <h1 class="pt-5">
+                    Register Page
+                </h1>
+                <p class="lead">
+                    Save time and leave the groceries to us.
+                </p>
+
+                <div class="card card-login mb-5">
+                    <div class="card-body">
+                        <div class="form-horizontal">
+                            <div class="form-group row mt-3">
+                                <div class="col-md-12">
+                                    <input class="form-control" @bind="@name" type="text" required="" placeholder="Full Name">
+                                </div>
+                            </div>
+                            <div class="form-group row mt-3">
+                                <div class="col-md-12">
+                                    <input class="form-control" type="email" @bind="@email" required="" placeholder="Email">
+                                </div>
+                            </div>
+                            @*<div class="form-group row mt-3">
+                                    <div class="col-md-12">
+                                        <input class="form-control" type="phone"  placeholder="Phone">
+                                    </div>
+                                </div>
+                                <div class="form-group row mt-3">
+                                    <div class="col-md-12">
+                                        <input class="form-control" type="text"  placeholder="Username">
+                                    </div>
+                                </div>*@
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <input class="form-control" type="password" @bind="@password" required="" placeholder="Password">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <input class="form-control" @bind="@confirmpassword" type="password" placeholder="Confirm Password">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <div class="checkbox">
+                                        <input id="checkbox0" type="checkbox" name="terms">
+                                        <label for="checkbox0" class="mb-0">I Agree with <a href="" class="">Terms & Conditions</a> </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row text-center mt-4">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-block text-uppercase" @onclick="SubmitForm">Register</button>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(error))
+                            {
+                                <div class="alert alert-danger mt-3 mb-0">@((MarkupString)error)</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    public RegisterClientRequest model;
+    eShopShare.Models.ApiModels.RegisterClientRequest nguoidung = new eShopShare.Models.ApiModels.RegisterClientRequest();
+    string name = "";
+    string email = "";
+    string password = "";
+    string confirmpassword = "";
+    private string error;
+    //public string confirmPassword = "";
+    protected override void OnInitialized()
+    {
+    }
+    public async void SubmitForm()
+    {
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+
+        var accessToken = sessionStorage.GetItem<string>("AccessToken");
+        var khachhangId = sessionStorage.GetItem<string>("KhachhangId");
+
+        model = new RegisterClientRequest() { Name = name, Email = email, Password = password, ConfirmPassword = confirmpassword };
+
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            StringContent content = new StringContent((JsonConvert.SerializeObject(model)), System.Text.Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+
+            HttpResponseMessage response = await client.PostAsync(apiUrl + "Register/dangky", content);
+            Console.WriteLine("link: " + apiUrl + "register");
+            Console.WriteLine("name: " + name);
+            Console.WriteLine("email: " + email);
+            Console.WriteLine("password: " + password);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                error += (error == "" ? "" : "<br/>") + " - Lỗi khi gọi API.";
+                //xu ly loi
+
+            }
+            else
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+
+                _toastSvc.ShowSuccess($"Register Success Email:{email}");
+                _OCSvc.Invoke();
+                NavigationManager.NavigateTo("/");
+            }
+        }
+    }
+
+}

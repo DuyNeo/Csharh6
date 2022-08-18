@@ -1,0 +1,5 @@
+﻿<StaticWebAssets Version="1.0">
+  <ContentRoot BasePath="/" Path="C:\Users\hp\OneDrive\Máy tính\Ngocduy\eShop\eShopControl\obj\Debug\net5.0\scopedcss\bundle\" />
+  <ContentRoot BasePath="_content/Blazored.Toast" Path="C:\Users\hp\.nuget\packages\blazored.toast\3.2.2\build\..\staticwebassets\" />
+  <ContentRoot BasePath="_content/Blazored.Typeahead" Path="C:\Users\hp\.nuget\packages\blazored.typeahead\4.7.0\build\..\staticwebassets\" />
+</StaticWebAssets>

@@ -1,0 +1,240 @@
+﻿@page "/Historydetail"
+@using Newtonsoft.Json
+@inject Microsoft.Extensions.Configuration.IConfiguration config;
+@layout WebLayout;
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject IOnChangeService _OCSvc;
+@inject IToastService _toastSvc;
+
+
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">No. Pesanan : AL121N8H2XQB47</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Billing Detail:</strong><br>
+                            Teguh Rianto<br>
+                            Jl. Petani No. 159, Cibabat<br>
+                            Cimahi Utara<br>
+                            Kota Cimahi<br>
+                            Jawa Barat 40513
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Payment Method:</strong><br>
+                            Direct Transfer to<br>
+                            Bank: BCA<br>
+                            No Rek.: 72133236179
+                        </p>
+                        <p>
+                            <strong>Batas Pembayaran</strong><br>
+                            14-12-2017 17:55 GMT+7
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>
+                            <strong>Your Order:</strong>
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Products</th>
+                                        <th class="text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            Ikan Segar x1
+                                        </td>
+                                        <td class="text-right">
+                                            Rp 30.000
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Sirloin x1
+                                        </td>
+                                        <td class="text-right">
+                                            Rp 120.000
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Mix Vegetables x1
+                                        </td>
+                                        <td class="text-right">
+                                            Rp 30.000
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfooter>
+                                    <tr>
+                                        <td>
+                                            <strong>Cart Subtotal</strong>
+                                        </td>
+                                        <td class="text-right">
+                                            Rp 180.000
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Shipping</strong>
+                                        </td>
+                                        <td class="text-right">
+                                            Rp 20.000
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>ORDER TOTAL</strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong>Rp 200.000</strong>
+                                        </td>
+                                    </tr>
+                                </tfooter>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<MonAn> monAns = null;
+    public MonAn monan = null;
+    protected string imgUrl = "";
+    protected string temp = "";
+    public int quantity = 1;
+    [Parameter]
+    public string id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        //sessionStorage.SetItem("name", "John Smith");
+        //var name = sessionStorage.GetItem<string>("name");
+
+        //monAns = _monAnService.GetMonAnAll();
+
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+        imgUrl = config.GetSection("API")["ImgUrl"].ToString();
+
+        //monAns = new List<MonAn>();
+        monan = new MonAn();
+        using (var client = new HttpClient())
+        {
+            //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+            client.BaseAddress = new Uri(apiUrl);
+            using (var response = await client.GetAsync("MonAn/" + id))
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                monan = Newtonsoft.Json.JsonConvert.DeserializeObject<MonAn>(apiResponse);
+            }
+        }
+        temp = imgUrl + "nophoto.png";
+        //monan = monAns.FirstOrDefault(x=>x.Id == int.Parse(id));
+        Console.WriteLine(monan);
+
+    }
+    private void AddCart(int id, int soluong)
+    {
+        int sl = 1;
+        //_cartSvc.AddToCart(id, monAns);
+        if (soluong > 0)
+        {
+            sl = soluong;
+        }
+
+        //var cart = HttpContext.Session.GetString("cart");//get key cart
+        var cart = sessionStorage.GetItem<string>("cart");//get key cart
+        if (cart == null)
+        {
+
+            //var monAn = monAns.Where(u=>u.Id==id).FirstOrDefault();
+            List<CartItem> listCart = new List<CartItem>()
+        {
+                    new CartItem
+                    {
+                        product = monan,
+                        quantity = sl,
+                        Sotien= (double)monan.Gia
+                    }
+            };
+
+            PostCartModel giohang = new PostCartModel()
+            {
+                cartItems = listCart,
+                TongTien = Tinhtien(listCart)
+            };
+
+            sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+            //HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(listCart));
+        }
+        else
+        {
+            //var monAn = monAns.Where(u => u.Id == id).FirstOrDefault();
+
+            PostCartModel giohang = JsonConvert.DeserializeObject<PostCartModel>(cart);
+            //List <ViewCart> dataCart = JsonConvert.DeserializeObject<List<ViewCart>>(cart);
+            bool check = true;
+            for (int i = 0; i < giohang.cartItems.Count; i++)
+            {
+                if (giohang.cartItems[i].product.Id == id)
+                {
+                    giohang.cartItems[i].quantity += sl;
+                    giohang.cartItems[i].Sotien = (double)monan.Gia * giohang.cartItems[i].quantity;
+                    check = false;
+                }
+            }
+
+            if (check)
+            {
+                //var monAn = monAns.Where(u => u.MonAnID == id).FirstOrDefault();
+                giohang.cartItems.Add(new CartItem
+                {
+                    product = monan,
+                    quantity = quantity + sl,
+                    Sotien = (double)monan.Gia * 1
+                });
+            }
+            giohang.TongTien = Tinhtien(giohang.cartItems);
+            sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+
+            //HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(dataCart));
+        }
+        _toastSvc.ShowSuccess($"Thêm thành công");
+        _OCSvc.Invoke();
+        this.StateHasChanged();
+    }
+    private double Tinhtien(List<CartItem> listCart)
+    {
+        double tongtien = 0;
+        if (listCart != null)
+        {
+            for (int i = 0; i < listCart.Count; i++)
+            {
+                tongtien += listCart[i].Sotien;
+            }
+        }
+        return tongtien;
+    }
+}

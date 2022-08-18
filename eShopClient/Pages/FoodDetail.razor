@@ -1,0 +1,207 @@
+﻿@page "/food-detail/{id}"
+@using Newtonsoft.Json
+@inject Microsoft.Extensions.Configuration.IConfiguration config;
+@layout WebLayout;
+@inject Blazored.SessionStorage.ISyncSessionStorageService sessionStorage
+@inject IOnChangeService _OCSvc;
+@inject IToastService _toastSvc;
+
+<div id="page-content" class="page-content">
+    <div class="product-detail" style=" margin-left: 202px; ">
+        <h3>Detail Product</h3>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="slider-zoom">
+                        @try
+                        {
+                            if (monan.Photos != null)
+                            {
+                                temp = imgUrl + monan.Photos.FirstOrDefault().FileName;
+                            }
+                            else
+                            {
+                                temp = imgUrl + "/nophoto.png";
+                            }
+
+                        }
+                        catch
+                        {
+
+                        }
+                        <a  class="cloud-zoom">
+                            <img alt="Detail Zoom thumbs image" src="@temp" data-zoom-image="@temp" style="width: 100%;border-radius: 5%">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <p>
+                        Name: @monan.Name
+                    </p>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>
+                                @*<strong>Price</strong>*@
+                                <span class="">Price: @monan.Gia.ToString("n0") VND</span>
+                            </p>
+                        </div>
+                        <div class="col-sm-6 text-right">
+                            <p>
+
+                            </p>
+                        </div>
+                    </div>
+                    <p class="mb-1">
+                        <strong>Quantity</strong>
+                    </p>
+                    <div class="product_variant quantity">
+                        <label>quantity</label>
+                        @*<input min="1" max="100" type="number" @bind-value="@quantity">*@
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <input class="vertical-spin" min="1" max="100" type="number" @bind-value="@quantity" data-bts-button-down-class="btn btn-primary" data-bts-button-up-class="btn btn-primary">
+                        </div>
+                        <div class="col-sm-6"></div>
+                    </div>
+                    <div class="product_meta">
+                        @switch (monan.phanLoai)
+                        {
+                            case MonAn.PhanLoai.Combo:
+                                <span>Category: <a>Combo</a></span>
+                                break;
+                            default:
+                                <span>Category: <a>Đồ ăn nhanh</a></span>
+                                break;
+                        }
+
+                    </div>
+                    <button class="mt-3 btn btn-primary btn-lg" @onclick="() => AddCart(monan.Id,quantity)">
+                        <i class="fa fa-shopping-basket"></i> Add to Cart
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code{
+    public List<MonAn> monAns = null;
+    public MonAn monan = null;
+    protected string imgUrl = "";
+    protected string temp = "";
+    public int quantity = 1;
+    [Parameter]
+    public string id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        //sessionStorage.SetItem("name", "John Smith");
+        //var name = sessionStorage.GetItem<string>("name");
+
+        //monAns = _monAnService.GetMonAnAll();
+
+        var apiUrl = config.GetSection("API")["APIUrl"].ToString();
+        imgUrl = config.GetSection("API")["ImgUrl"].ToString();
+
+        //monAns = new List<MonAn>();
+        monan = new MonAn();
+        using (var client = new HttpClient())
+        {
+            //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+            client.BaseAddress = new Uri(apiUrl);
+            using (var response = await client.GetAsync("MonAn/" + id))
+            {
+                string apiResponse = await response.Content.ReadAsStringAsync();
+                monan = Newtonsoft.Json.JsonConvert.DeserializeObject<MonAn>(apiResponse);
+            }
+        }
+        temp = imgUrl + "nophoto.png";
+        //monan = monAns.FirstOrDefault(x=>x.Id == int.Parse(id));
+        Console.WriteLine(monan);
+
+    }
+    private void AddCart(int id, int soluong)
+    {
+        int sl = 1;
+        //_cartSvc.AddToCart(id, monAns);
+        if (soluong > 0)
+        {
+            sl = soluong;
+        }
+
+        //var cart = HttpContext.Session.GetString("cart");//get key cart
+        var cart = sessionStorage.GetItem<string>("cart");//get key cart
+        if (cart == null)
+        {
+
+            //var monAn = monAns.Where(u=>u.Id==id).FirstOrDefault();
+            List<CartItem> listCart = new List<CartItem>()
+            {
+                    new CartItem
+                    {
+                        product = monan,
+                        quantity = sl,
+                        Sotien= (double)monan.Gia
+                    }
+            };
+
+            PostCartModel giohang = new PostCartModel()
+            {
+                cartItems = listCart,
+                TongTien = Tinhtien(listCart)
+            };
+
+            sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+            //HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(listCart));
+        }
+        else
+        {
+            //var monAn = monAns.Where(u => u.Id == id).FirstOrDefault();
+
+            PostCartModel giohang = JsonConvert.DeserializeObject<PostCartModel>(cart);
+            //List <ViewCart> dataCart = JsonConvert.DeserializeObject<List<ViewCart>>(cart);
+            bool check = true;
+            for (int i = 0; i < giohang.cartItems.Count; i++)
+            {
+                if (giohang.cartItems[i].product.Id == id)
+                {
+                    giohang.cartItems[i].quantity += sl;
+                    giohang.cartItems[i].Sotien = (double)monan.Gia * giohang.cartItems[i].quantity;
+                    check = false;
+                }
+            }
+
+            if (check)
+            {
+                //var monAn = monAns.Where(u => u.MonAnID == id).FirstOrDefault();
+                giohang.cartItems.Add(new CartItem
+                {
+                    product = monan,
+                    quantity = quantity + sl,
+                    Sotien = (double)monan.Gia * 1
+                });
+            }
+            giohang.TongTien = Tinhtien(giohang.cartItems);
+            sessionStorage.SetItem("cart", JsonConvert.SerializeObject(giohang));
+
+            //HttpContext.Session.SetString("cart", JsonConvert.SerializeObject(dataCart));
+        }
+        _toastSvc.ShowSuccess($"Success");
+        _OCSvc.Invoke();
+        this.StateHasChanged();
+    }
+    private double Tinhtien(List<CartItem> listCart)
+    {
+        double tongtien = 0;
+        if (listCart != null)
+        {
+            for (int i = 0; i < listCart.Count; i++)
+            {
+                tongtien += listCart[i].Sotien;
+            }
+        }
+        return tongtien;
+    }
+}

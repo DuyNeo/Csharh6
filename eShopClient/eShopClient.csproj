@@ -1,0 +1,83 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\css\**" />
+    <Content Remove="wwwroot\css\**" />
+    <EmbeddedResource Remove="wwwroot\css\**" />
+    <None Remove="wwwroot\css\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\assets\css\theme.css.map" />
+    <None Include="wwwroot\assets\fonts\font-awesome\webfonts\fa-brands-400.svg" />
+    <None Include="wwwroot\assets\fonts\font-awesome\webfonts\fa-brands-400.woff2" />
+    <None Include="wwwroot\assets\fonts\font-awesome\webfonts\fa-regular-400.svg" />
+    <None Include="wwwroot\assets\fonts\font-awesome\webfonts\fa-regular-400.woff2" />
+    <None Include="wwwroot\assets\fonts\font-awesome\webfonts\fa-solid-900.svg" />
+    <None Include="wwwroot\assets\fonts\font-awesome\webfonts\fa-solid-900.woff2" />
+    <None Include="wwwroot\assets\fonts\sb-bistro\sb-bistro.svg" />
+    <None Include="wwwroot\assets\js\jquery-migrate.js" />
+    <None Include="wwwroot\assets\js\jquery.js" />
+    <None Include="wwwroot\assets\js\theme.js" />
+    <None Include="wwwroot\assets\packages\bootstrap-touchspin\bootstrap-touchspin.js" />
+    <None Include="wwwroot\assets\packages\bootstrap\bootstrap.css.map" />
+    <None Include="wwwroot\assets\packages\bootstrap\bootstrap.js" />
+    <None Include="wwwroot\assets\packages\bootstrap\bootstrap.js.map" />
+    <None Include="wwwroot\assets\packages\bootstrap\libraries\popper.js" />
+    <None Include="wwwroot\assets\packages\cloudzoom\cloudzoom.js" />
+    <None Include="wwwroot\assets\packages\o2system-ui\o2system-ui.css.map" />
+    <None Include="wwwroot\assets\packages\o2system-ui\o2system-ui.js" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_accordion.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_badge.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_breadcrumbs.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_button.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_card.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_color.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_global.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_jumbotron.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_nav.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_offline.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_pace.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_pricing.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_tab.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_timeline.scss" />
+    <None Include="wwwroot\assets\packages\o2system-ui\scss\o2system-ui\_utilities.scss" />
+    <None Include="wwwroot\assets\packages\owl-carousel\owl-carousel.js" />
+    <None Include="wwwroot\assets\packages\thumbelina\thumbelina.js" />
+    <None Include="wwwroot\assets\sass\theme.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_color.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_footer.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_global.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_header.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_landing.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_login.scss" />
+    <None Include="wwwroot\assets\sass\_partials\_shop.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+    <PackageReference Include="Blazored.Toast" Version="3.2.2" />
+    <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.17" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
+	  <PackageReference Include="Blazored.SessionStorage" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.17" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />	  
+	  <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\eShopShare\eShopShare.csproj" />
+  </ItemGroup>
+
+</Project>
